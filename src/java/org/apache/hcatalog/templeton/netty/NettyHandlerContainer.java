@@ -93,7 +93,8 @@ public class NettyHandlerContainer extends SimpleChannelUpstreamHandler
 
          public void finish() throws IOException
          {
-        // Streaming is not supported. Entire response will be written downstream once finish() is called.
+             // Streaming is not supported. Entire response will be written
+             // downstream once finish() is called.
              channel.write(response).addListener(ChannelFutureListener.CLOSE);
          }
      }
