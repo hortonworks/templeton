@@ -104,7 +104,7 @@ public class Server {
 			= new OioServerSocketChannelFactory(Executors.newCachedThreadPool(),
 			                                    Executors.newCachedThreadPool());
 
-        // to switch to nio mode (need to have jersey stop using ThreadLocal first
+        // to switch to nio mode (need to have jersey stop using ThreadLocal
         //NioServerSocketChannelFactory factory
         //	= new NioServerSocketChannelFactory(Executors.newCachedThreadPool(),
         //                                      Executors.newCachedThreadPool());
