@@ -97,22 +97,23 @@ public class Server {
         }
     }
 
-
-	public static void main(String[] args)
-	{
-		ServerBootstrap bootstrap = new ServerBootstrap(new NioServerSocketChannelFactory(Executors.newCachedThreadPool(),Executors.newCachedThreadPool()));
-		bootstrap.setPipelineFactory(new HttpServerPipelineFactory());
-		int port = 8090;
-		if (args.length > 0) {
-			try {
-				port = Integer.parseInt(args[0]);
-			} catch (NumberFormatException e) {
-				port = 8090;
-			}
-		}
-		System.out.println("Templeton listening on port:"+port);
-		bootstrap.bind(new InetSocketAddress(port));
-	}
+    public static void main(String[] args) {
+        NioServerSocketChannelFactory factory
+            = new NioServerSocketChannelFactory(Executors.newCachedThreadPool(),
+                                                Executors.newCachedThreadPool());
+        ServerBootstrap bootstrap = new ServerBootstrap(factory);
+        bootstrap.setPipelineFactory(new HttpServerPipelineFactory());
+        int port = 8090;
+        if (args.length > 0) {
+            try {
+                port = Integer.parseInt(args[0]);
+            } catch (NumberFormatException e) {
+                port = 8090;
+            }
+        }
+        System.out.println("Templeton listening on port:" + port);
+        bootstrap.bind(new InetSocketAddress(port));
+    }
 
     /**
      * Check the supported request formats of this server.
