@@ -100,8 +100,18 @@ public class Server {
 
 	public static void main(String[] args)
 	{
-		//ServerBootstrap bootstrap = new ServerBootstrap(new NioServerSocketChannelFactory(Executors.newCachedThreadPool(),Executors.newCachedThreadPool()));
-		ServerBootstrap bootstrap = new ServerBootstrap(new OioServerSocketChannelFactory(Executors.newCachedThreadPool(),Executors.newCachedThreadPool()));
+		OioServerSocketChannelFactory factory 
+			= new OioServerSocketChannelFactory(Executors.newCachedThreadPool(),
+			                                    Executors.newCachedThreadPool());
+
+        // to switch to nio mode (need to have jersey stop using ThreadLocal first
+        //NioServerSocketChannelFactory factory
+        //	= new NioServerSocketChannelFactory(Executors.newCachedThreadPool(),
+        //                                      Executors.newCachedThreadPool());
+
+
+		ServerBootstrap bootstrap = new ServerBootstrap(factory);
+
 		bootstrap.setPipelineFactory(new HttpServerPipelineFactory());
 		int port = 8090;
 		if (args.length > 0) {		
