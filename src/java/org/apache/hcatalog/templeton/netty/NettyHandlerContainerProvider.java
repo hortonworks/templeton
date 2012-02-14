@@ -1,4 +1,4 @@
-package com.sun.jersey.server.impl.container.netty;
+package org.apache.hcatalog.templeton.netty;
 
 //The MIT License
 //
@@ -29,11 +29,11 @@ import com.sun.jersey.api.container.ContainerException;
 
 public class NettyHandlerContainerProvider implements ContainerProvider<NettyHandlerContainer>
 {
-public NettyHandlerContainer createContainer(Class<NettyHandlerContainer> type, ResourceConfig config, WebApplication application) throws ContainerException
-{
-if (type != NettyHandlerContainer.class)
-return null;
+    public NettyHandlerContainer createContainer(Class<NettyHandlerContainer> type, ResourceConfig config, WebApplication application) throws ContainerException
+    {
+        if (type != NettyHandlerContainer.class)
+            return null;
 
-return new NettyHandlerContainer(application, config);
-}
+        return new NettyHandlerContainer(application, config);
+    }
 }
