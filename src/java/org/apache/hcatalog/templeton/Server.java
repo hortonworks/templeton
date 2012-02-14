@@ -19,6 +19,9 @@ package org.apache.hcatalog.templeton;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.ws.rs.Produces;
@@ -40,6 +43,21 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.security.authentication.client.PseudoAuthenticator;
+
+import org.jboss.netty.bootstrap.ServerBootstrap;
+import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
+import org.jboss.netty.channel.*;
+import static org.jboss.netty.channel.Channels.pipeline;
+import org.jboss.netty.handler.codec.http.*;
+
+import java.net.InetSocketAddress;
+import java.util.concurrent.Executors;
+import com.sun.jersey.api.core.ClassNamesResourceConfig;
+import com.sun.jersey.api.container.ContainerFactory;
+import com.sun.jersey.api.core.ResourceConfig;
+
+import com.sun.jersey.server.impl.container.netty.NettyHandlerContainerProvider;
+import com.sun.jersey.server.impl.container.netty.NettyHandlerContainer;
 
 /**
  * The Templeton Web API server.
@@ -81,6 +99,23 @@ public class Server {
             LOG.error("ZookeeperCleanup failed to start: " + e.getMessage());
         }
     }
+
+
+	public static void main(String[] args)
+	{
+		ServerBootstrap bootstrap = new ServerBootstrap(new NioServerSocketChannelFactory(Executors.newCachedThreadPool(),Executors.newCachedThreadPool()));
+		bootstrap.setPipelineFactory(new HttpServerPipelineFactory());
+		int port = 8090;
+		if (args.length > 0) {		
+			try {
+				port = Integer.parseInt(args[0]);
+			} catch (NumberFormatException e) {
+				port = 8090;
+			}
+		}
+		System.out.println("Templeton listening on port:"+port);
+		bootstrap.bind(new InetSocketAddress(port));
+	}
 
     /**
      * Check the supported request formats of this server.
@@ -421,4 +456,30 @@ public class Server {
             return null;
         return theUriInfo.getBaseUri() + "v1/internal/complete/$jobId.json";
     }
+
+}
+
+class HttpServerPipelineFactory implements ChannelPipelineFactory
+{
+	private NettyHandlerContainer jerseyHandler;
+
+	public HttpServerPipelineFactory(){
+		this.jerseyHandler = getJerseyHandler();
+	}
+
+	public ChannelPipeline getPipeline() throws Exception{
+		ChannelPipeline pipeline = pipeline();
+		pipeline.addLast("decoder", new HttpRequestDecoder());
+		pipeline.addLast("encoder", new HttpResponseEncoder());
+		pipeline.addLast("jerseyHandler", jerseyHandler);
+		return pipeline;
+	}
+
+	private NettyHandlerContainer getJerseyHandler(){
+		Map<String, Object> props = new HashMap<String, Object>();
+		props.put(ClassNamesResourceConfig.PROPERTY_CLASSNAMES, "org.apache.hcatalog.templeton.Server");
+		ResourceConfig rcf = new ClassNamesResourceConfig(props);
+
+		return ContainerFactory.createContainer(NettyHandlerContainer.class, rcf);
+	}
 }
