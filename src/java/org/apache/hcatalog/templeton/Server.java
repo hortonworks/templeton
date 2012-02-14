@@ -19,6 +19,8 @@ package org.apache.hcatalog.templeton;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.ws.rs.Produces;
@@ -40,6 +42,20 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.security.authentication.client.PseudoAuthenticator;
+import org.jboss.netty.bootstrap.ServerBootstrap;
+import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
+import org.jboss.netty.channel.socket.oio.OioServerSocketChannelFactory;
+import org.jboss.netty.channel.*;
+import java.net.InetSocketAddress;
+import java.util.concurrent.Executors;
+import com.sun.jersey.api.core.ClassNamesResourceConfig;
+import com.sun.jersey.api.container.ContainerFactory;
+import com.sun.jersey.api.core.ResourceConfig;
+import org.jboss.netty.channel.Channels;
+import org.jboss.netty.handler.codec.http.HttpRequestDecoder;
+import org.jboss.netty.handler.codec.http.HttpResponseEncoder;
+
+import org.apache.hcatalog.templeton.netty.NettyHandlerContainer;
 
 /**
  * The Templeton Web API server.
@@ -81,6 +97,34 @@ public class Server {
             LOG.error("ZookeeperCleanup failed to start: " + e.getMessage());
         }
     }
+
+	public static void main(String[] args)
+	{
+		OioServerSocketChannelFactory factory 
+			= new OioServerSocketChannelFactory(Executors.newCachedThreadPool(),
+			                                    Executors.newCachedThreadPool());
+
+        // to switch to nio mode (need to have jersey stop using ThreadLocal
+        //NioServerSocketChannelFactory factory
+        //	= new NioServerSocketChannelFactory(Executors.newCachedThreadPool(),
+        //                                      Executors.newCachedThreadPool());
+
+
+		ServerBootstrap bootstrap = new ServerBootstrap(factory);
+
+		bootstrap.setPipelineFactory(new HttpServerPipelineFactory());
+		int port = 8090;
+		if (args.length > 0) {		
+			try {
+				port = Integer.parseInt(args[0]);
+			} catch (NumberFormatException e) {
+				port = 8090;
+			}
+		}
+		System.out.println("Templeton listening on port:"+port);
+		bootstrap.bind(new InetSocketAddress(port));
+	}
+
 
     /**
      * Check the supported request formats of this server.
@@ -421,4 +465,30 @@ public class Server {
             return null;
         return theUriInfo.getBaseUri() + "v1/internal/complete/$jobId.json";
     }
+
+}
+
+class HttpServerPipelineFactory implements ChannelPipelineFactory
+{
+	private NettyHandlerContainer jerseyHandler;
+
+	public HttpServerPipelineFactory(){
+		this.jerseyHandler = getJerseyHandler();
+	}
+
+	public ChannelPipeline getPipeline() throws Exception{
+		ChannelPipeline p = Channels.pipeline();
+		p.addLast("decoder", new HttpRequestDecoder());
+		p.addLast("encoder", new HttpResponseEncoder());
+		p.addLast("jerseyHandler", jerseyHandler);
+		return p;
+	}
+
+	private NettyHandlerContainer getJerseyHandler(){
+		Map<String, Object> props = new HashMap<String, Object>();
+		props.put(ClassNamesResourceConfig.PROPERTY_CLASSNAMES, "org.apache.hcatalog.templeton.Server");
+		ResourceConfig rcf = new ClassNamesResourceConfig(props);
+
+		return ContainerFactory.createContainer(NettyHandlerContainer.class, rcf);
+	}
 }
