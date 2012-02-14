@@ -46,6 +46,7 @@ import org.apache.hadoop.security.authentication.client.PseudoAuthenticator;
 
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
+import org.jboss.netty.channel.socket.oio.OioServerSocketChannelFactory;
 import org.jboss.netty.channel.*;
 import static org.jboss.netty.channel.Channels.pipeline;
 import org.jboss.netty.handler.codec.http.*;
@@ -103,7 +104,8 @@ public class Server {
 
 	public static void main(String[] args)
 	{
-		ServerBootstrap bootstrap = new ServerBootstrap(new NioServerSocketChannelFactory(Executors.newCachedThreadPool(),Executors.newCachedThreadPool()));
+		//ServerBootstrap bootstrap = new ServerBootstrap(new NioServerSocketChannelFactory(Executors.newCachedThreadPool(),Executors.newCachedThreadPool()));
+		ServerBootstrap bootstrap = new ServerBootstrap(new OioServerSocketChannelFactory(Executors.newCachedThreadPool(),Executors.newCachedThreadPool()));
 		bootstrap.setPipelineFactory(new HttpServerPipelineFactory());
 		int port = 8090;
 		if (args.length > 0) {		
