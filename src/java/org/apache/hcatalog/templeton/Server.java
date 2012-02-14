@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.ws.rs.Produces;
@@ -43,22 +42,20 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.security.authentication.client.PseudoAuthenticator;
-
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
 import org.jboss.netty.channel.socket.oio.OioServerSocketChannelFactory;
 import org.jboss.netty.channel.*;
-import static org.jboss.netty.channel.Channels.pipeline;
-import org.jboss.netty.handler.codec.http.*;
-
 import java.net.InetSocketAddress;
 import java.util.concurrent.Executors;
 import com.sun.jersey.api.core.ClassNamesResourceConfig;
 import com.sun.jersey.api.container.ContainerFactory;
 import com.sun.jersey.api.core.ResourceConfig;
+import org.jboss.netty.channel.Channels;
+import org.jboss.netty.handler.codec.http.HttpRequestDecoder;
+import org.jboss.netty.handler.codec.http.HttpResponseEncoder;
 
-import com.sun.jersey.server.impl.container.netty.NettyHandlerContainerProvider;
-import com.sun.jersey.server.impl.container.netty.NettyHandlerContainer;
+import org.apache.hcatalog.templeton.netty.NettyHandlerContainer;
 
 /**
  * The Templeton Web API server.
@@ -101,7 +98,6 @@ public class Server {
         }
     }
 
-
 	public static void main(String[] args)
 	{
 		//ServerBootstrap bootstrap = new ServerBootstrap(new NioServerSocketChannelFactory(Executors.newCachedThreadPool(),Executors.newCachedThreadPool()));
@@ -118,6 +114,7 @@ public class Server {
 		System.out.println("Templeton listening on port:"+port);
 		bootstrap.bind(new InetSocketAddress(port));
 	}
+
 
     /**
      * Check the supported request formats of this server.
@@ -470,11 +467,11 @@ class HttpServerPipelineFactory implements ChannelPipelineFactory
 	}
 
 	public ChannelPipeline getPipeline() throws Exception{
-		ChannelPipeline pipeline = pipeline();
-		pipeline.addLast("decoder", new HttpRequestDecoder());
-		pipeline.addLast("encoder", new HttpResponseEncoder());
-		pipeline.addLast("jerseyHandler", jerseyHandler);
-		return pipeline;
+		ChannelPipeline p = Channels.pipeline();
+		p.addLast("decoder", new HttpRequestDecoder());
+		p.addLast("encoder", new HttpResponseEncoder());
+		p.addLast("jerseyHandler", jerseyHandler);
+		return p;
 	}
 
 	private NettyHandlerContainer getJerseyHandler(){
