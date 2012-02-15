@@ -55,7 +55,7 @@ import org.jboss.netty.channel.Channels;
 import org.jboss.netty.handler.codec.http.HttpRequestDecoder;
 import org.jboss.netty.handler.codec.http.HttpResponseEncoder;
 
-import org.apache.hcatalog.templeton.netty.NettyHandlerContainer;
+import org.apache.hcatalog.templeton.netty.JerseryHandler;
 
 /**
  * The Templeton Web API server.
@@ -470,7 +470,7 @@ public class Server {
 
 class HttpServerPipelineFactory implements ChannelPipelineFactory
 {
-	private NettyHandlerContainer jerseyHandler;
+	private JerseryHandler jerseyHandler;
 
 	public HttpServerPipelineFactory(){
 		this.jerseyHandler = getJerseyHandler();
@@ -484,11 +484,11 @@ class HttpServerPipelineFactory implements ChannelPipelineFactory
 		return p;
 	}
 
-	private NettyHandlerContainer getJerseyHandler(){
+	private JerseryHandler getJerseyHandler(){
 		Map<String, Object> props = new HashMap<String, Object>();
 		props.put(ClassNamesResourceConfig.PROPERTY_CLASSNAMES, "org.apache.hcatalog.templeton.Server");
 		ResourceConfig rcf = new ClassNamesResourceConfig(props);
 
-		return ContainerFactory.createContainer(NettyHandlerContainer.class, rcf);
+		return ContainerFactory.createContainer(JerseryHandler.class, rcf);
 	}
 }
