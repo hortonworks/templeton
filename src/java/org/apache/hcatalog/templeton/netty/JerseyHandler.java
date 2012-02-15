@@ -19,11 +19,11 @@ import org.jboss.netty.buffer.ChannelBufferInputStream;
 import java.net.URI;
 
 @ChannelPipelineCoverage("one")
-public class JerseryHandler extends AbstractHttpHandler {
+public class JerseyHandler extends AbstractHttpHandler {
 
     private WebApplication application;
    
-	public JerseryHandler(WebApplication application,
+	public JerseyHandler(WebApplication application,
                           ResourceConfig resourceConfig)
     {
 		this.application = application;

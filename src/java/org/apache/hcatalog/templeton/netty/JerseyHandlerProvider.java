@@ -6,16 +6,16 @@ import com.sun.jersey.api.core.ResourceConfig;
 import com.sun.jersey.api.container.ContainerException;
 
 public class JerseyHandlerProvider
-    implements ContainerProvider<JerseryHandler>
+    implements ContainerProvider<JerseyHandler>
 {
-    public JerseryHandler createContainer(Class<JerseryHandler> type,
+    public JerseyHandler createContainer(Class<JerseyHandler> type,
                                           ResourceConfig config,
                                           WebApplication application)
         throws ContainerException
     {
-        if (type != JerseryHandler.class)
+        if (type != JerseyHandler.class)
             return null;
 
-        return new JerseryHandler(application, config);
+        return new JerseyHandler(application, config);
     }
 }
