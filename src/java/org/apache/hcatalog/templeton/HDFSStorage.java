@@ -76,7 +76,6 @@ public class HDFSStorage implements TempletonStorage {
 			// Overwrite the existing file
 			out = new PrintWriter(new OutputStreamWriter(fs.create(file)));
 			for (String line : vals.keySet()) {
-				LOG.info("*** Writing " + line + " / " + vals.get(line));
 				out.write(line + "\n");
 				out.write(preprocess(vals.get(line)) + "\n");
 			}
@@ -128,7 +127,6 @@ public class HDFSStorage implements TempletonStorage {
 			String line = null;
 			while ((line = in.readLine()) != null) {
 				String val = in.readLine();
-				LOG.info("Read back: " + line + " : " + val);
 				map.put(line, postprocess(val));
 			}
 		} catch (IOException e) {
@@ -221,10 +219,7 @@ public class HDFSStorage implements TempletonStorage {
 
 	@Override
 	public void closeStorage() throws IOException {
-		if (fs != null) {
-			fs.close();
-		}
-
+		// Nothing to do here
 	}
 	
 	/**
@@ -255,7 +250,7 @@ public class HDFSStorage implements TempletonStorage {
 		if (value == null) {
 			return null;
 		}
-		return value.replaceAll("\\n", "\\n");
+		return value.replaceAll("\\n", "\\\\n");
 	}
 	
 	/**

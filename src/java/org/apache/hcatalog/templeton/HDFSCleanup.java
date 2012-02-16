@@ -36,11 +36,11 @@ public class HDFSCleanup extends Thread {
 
     // The interval to wake up and check the queue
     public static final String HDFS_CLEANUP_INTERVAL =
-        "templeton.zookeeper.cleanup.interval"; // 12 hours
+        "templeton.hdfs.cleanup.interval"; // 12 hours
 
     // The max age of a task allowed
     public static final String HDFS_CLEANUP_MAX_AGE =
-        "templeton.zookeeper.cleanup.maxage"; // ~ 1 week
+        "templeton.hdfs.cleanup.maxage"; // ~ 1 week
 
     protected static long interval = 1000L * 60L * 60L * 12L;
     protected static long maxage = 1000L * 60L * 60L * 24L * 7L;
@@ -91,19 +91,12 @@ public class HDFSCleanup extends Thread {
                 // Put each check in a separate try/catch, so if that particular
                 // cycle fails, it'll try again on the next cycle.
                 try {
-        			fs = FileSystem.get(appConf);
+                	if (fs == null) {
+                		fs = FileSystem.get(appConf);
+                	}
         			checkFiles(fs);
                 } catch (Exception e) {
                     LOG.error("Cleanup cycle failed: " + e.getMessage());
-                } finally {
-                    if (fs != null) {
-                        try {
-                            fs.close();
-                            fs = null;
-                        } catch (Exception e) {
-                            // We're trying to exit anyway, just ignore.
-                        }
-                    }
                 }
 
                 long sleepMillis = (long) (Math.random() * interval);
@@ -130,13 +123,17 @@ public class HDFSCleanup extends Thread {
     private void checkFiles(FileSystem fs) throws IOException {
     	long now = new Date().getTime();
 	    for (Type type : Type.values()) {
-			for (FileStatus status : fs.listStatus(new Path(
-						HDFSStorage.getPath(type)))) {
-				if (now - status.getModificationTime() > maxage) {
-					fs.delete(status.getPath(), false);
+	    	try {
+				for (FileStatus status : fs.listStatus(new Path(
+							HDFSStorage.getPath(type)))) {
+					if (now - status.getModificationTime() > maxage) {
+						LOG.info("Deleting " + status.getPath().toString());
+						fs.delete(status.getPath(), false);
+					}
 				}
-					
-			}
+			} catch (Exception e) {
+				// Nothing to find for this type.
+			}					
 		}
     }
 
