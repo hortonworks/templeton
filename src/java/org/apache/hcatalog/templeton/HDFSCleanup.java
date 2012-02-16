@@ -144,7 +144,7 @@ public class HDFSCleanup extends Thread {
 
     public static void main(String[] args) {
         try {
-            HDFSCleanup.startInstance(AppConfig.getInstance());
+            HDFSCleanup.startInstance(Main.getAppConfigInstance());
         } catch (Exception e) {
             LOG.error(e.getMessage());
         }

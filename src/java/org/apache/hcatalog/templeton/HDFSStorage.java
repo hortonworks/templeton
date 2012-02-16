@@ -54,7 +54,7 @@ public class HDFSStorage implements TempletonStorage {
 
     static {
         try {
-            HDFSCleanup.startInstance(AppConfig.getInstance());
+            HDFSCleanup.startInstance(Main.getAppConfigInstance());
         } catch (IOException e) {
             // If cleanup isn't running, should the server run?
             LOG.error("ZookeeperCleanup failed to start: " + e.getMessage());
