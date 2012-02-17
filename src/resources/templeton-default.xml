@@ -171,6 +171,18 @@ limitations under the License.
   </property>
 
   <property>
+    <name>templeton.hdfs.cleanup.interval</name>
+    <value>43200000</value>
+    <description>The maximum delay between a thread's cleanup checks</description>
+  </property>
+
+  <property>
+    <name>templeton.hdfs.cleanup.maxage</name>
+    <value>604800000</value>
+    <description>The maximum age of a templeton job</description>
+  </property>
+
+  <property>
     <name>templeton.zookeeper.cleanup.interval</name>
     <value>43200000</value>
     <description>The maximum delay between a thread's cleanup checks</description>
@@ -181,7 +193,6 @@ limitations under the License.
     <value>604800000</value>
     <description>The maximum age of a templeton job</description>
   </property>
-
 
 
 </configuration>
