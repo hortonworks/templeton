@@ -20,9 +20,14 @@ package org.apache.hcatalog.templeton;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.Semaphore;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
@@ -31,6 +36,43 @@ import org.apache.commons.exec.ExecuteWatchdog;
 import org.apache.commons.exec.PumpStreamHandler;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+
+
+class StreamGobbler extends Thread
+{
+    InputStream is;
+    String type;
+    PrintWriter out;
+    
+    StreamGobbler(InputStream is, String type, OutputStream outStream)
+    {
+        this.is = is;
+        this.type = type;
+        this.out = new PrintWriter(outStream,true);
+    }
+    
+    public void run()
+    {
+        try
+	    {
+		InputStreamReader isr = new InputStreamReader(is);
+		BufferedReader br = new BufferedReader(isr);
+		String line=null;
+		while ( (line = br.readLine()) != null){
+		    out.println(line);
+		    System.out.println(line);
+		}
+	    } catch (IOException ioe)
+	    {
+		ioe.printStackTrace();  
+	    }
+    }
+}
 
 /**
  * Execute a local program.  This is a singleton service that will
@@ -116,7 +158,8 @@ public class ExecServiceImpl implements ExecService {
         throws NotAuthorizedException, ExecuteException, IOException
     {
         DefaultExecutor executor = new DefaultExecutor();
-        executor.setExitValues(null);
+	executor.setExitValues(null);
+	//	executor.setExitValue(0);
 
         // Setup stdout and stderr
         int nbytes = appConf.getInt(AppConfig.EXEC_MAX_BYTES_NAME, -1);
@@ -133,12 +176,46 @@ public class ExecServiceImpl implements ExecService {
 
         LOG.info("Running: " + cmd);
         ExecBean res = new ExecBean();
-        res.exitcode = executor.execute(cmd, execEnv(env));
+
+	if(true){
+            env = execEnv(env);
+            String[] envVals = new String[env.size()];
+            int i=0;
+            for( Entry<String, String> kv : env.entrySet()){
+                envVals[i++] = kv.getKey() + "=" + kv.getValue();
+                System.out.println("Setting " +  kv.getKey() + "=" + kv.getValue());
+            }
+            Process proc = Runtime.getRuntime().exec(cmd.toStrings(), envVals);
+            // any error message?
+            StreamGobbler errorGobbler = new
+                StreamGobbler(proc.getErrorStream(), "ERROR", errStream);
+
+            // any output?
+            StreamGobbler outputGobbler = new
+                StreamGobbler(proc.getInputStream(), "OUTPUT", outStream);
+
+            // kick them off
+            errorGobbler.start();
+            outputGobbler.start();
+            try {
+                res.exitcode = proc.waitFor();
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+	    
+	    errorGobbler.out.flush();
+            outputGobbler.out.flush();
+        }
+        else {
+            res.exitcode = executor.execute(cmd, execEnv(env));
+
+        }
         String enc = appConf.get(AppConfig.EXEC_ENCODING_NAME);
         res.stdout = outStream.toString(enc);
         res.stderr = errStream.toString(enc);
-
         return res;
+
     }
 
     private CommandLine makeCommandLine(String program,
@@ -168,7 +245,10 @@ public class ExecServiceImpl implements ExecService {
                 res.put(key, val);
             }
         }
-        if (env != null)
+
+	//	res.putAll(System.getenv());
+
+	if (env != null)
             res.putAll(env);
         for(Map.Entry<String, String> envs : res.entrySet()){
 	    LOG.info("Env " + envs.getKey() + "=" + envs.getValue());

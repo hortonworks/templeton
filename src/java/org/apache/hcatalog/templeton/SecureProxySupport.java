@@ -49,6 +49,8 @@ public class SecureProxySupport {
 
     public SecureProxySupport() {
         isEnabled = UserGroupInformation.isSecurityEnabled();
+        LOG.debug("Hadoop security is " + (isEnabled ? "" : "not ") + "enabled");
+	System.err.println("Hadoop security is " + (isEnabled ? "" : "not ") + "enabled");
     }
 
     private static final Log LOG = LogFactory.getLog(SecureProxySupport.class);

@@ -102,12 +102,15 @@ public class TempletonControllerJob extends Configured implements Tool {
 
             ArrayList<String> removeEnv = new ArrayList<String>();
             removeEnv.add("HADOOP_ROOT_LOGGER");
+            removeEnv.add("hadoop-command");
+            removeEnv.add("CLASS");
+            removeEnv.add("mapredcommand");
             Map<String, String> env = TempletonUtils.hadoopUserEnv(user,
                                                                    overrideClasspath);
             List<String> jarArgsList = new LinkedList<String>(Arrays.asList(jarArgs));
             String tokenFile = System.getenv("HADOOP_TOKEN_FILE_LOCATION");
             if(tokenFile != null){
-                jarArgsList.add(1, "-Dmapreduce.job.credentials.binary=" + tokenFile );
+		//                jarArgsList.add(1, "-Dmapreduce.job.credentials.binary=" + tokenFile );
             }
             return execService.run(jarArgsList, removeEnv, env);
         }
@@ -137,6 +140,7 @@ public class TempletonControllerJob extends Configured implements Tool {
             Process proc = startJob(context,
                                     conf.get("user.name"),
                                     conf.get(OVERRIDE_CLASSPATH));
+	    System.err.println("job started");
 
             String statusdir = conf.get(STATUSDIR_NAME);
             Counter cnt = context.getCounter(ControllerCounters.SIMPLE_COUNTER);
@@ -147,13 +151,13 @@ public class TempletonControllerJob extends Configured implements Tool {
             executeWatcher(pool, conf, context.getJobID(),
                            proc.getErrorStream(), statusdir, STDERR_FNAME);
             KeepAlive keepAlive = startCounterKeepAlive(pool, cnt);
-
+	    System.err.println("job watchers created");
             proc.waitFor();
             keepAlive.sendReport = false;
             pool.shutdown();
             if (! pool.awaitTermination(WATCHER_TIMEOUT_SECS, TimeUnit.SECONDS))
                 pool.shutdownNow();
-
+	    System.err.println("job done");
             writeExitValue(conf, proc.exitValue(), statusdir);
             JobState state = new JobState(context.getJobID().toString(), conf);
             state.setExitValue(proc.exitValue());

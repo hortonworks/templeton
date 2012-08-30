@@ -46,6 +46,16 @@ public class TrivialExecService {
         for(Map.Entry<String, String> keyVal : environmentVariables.entrySet()){
             System.err.println(keyVal.getKey() + "=" + keyVal.getValue());
         }
+
+
+        System.err.print("With environment variables already set: " );
+        Map<String, String> env = System.getenv();
+        for (String envName : env.keySet()) {
+            System.out.format("%s=%s%n",
+                              envName,
+                              env.get(envName));
+        }   
+
         ProcessBuilder pb = new ProcessBuilder(cmd);
         for (String key : removeEnv)
             pb.environment().remove(key);

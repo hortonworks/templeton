@@ -73,6 +73,9 @@ public class PigDelegator extends LauncherDelegator {
             args.add(appConf.pigArchive());
 
             args.add("--");
+            args.add("cmd");
+            args.add("/c");
+            args.add("call");
             args.add(appConf.pigPath());
             args.addAll(pigArgs);
             if (TempletonUtils.isset(execute)) {

@@ -57,6 +57,9 @@ public class HiveDelegator extends LauncherDelegator {
         try {
             args.addAll(makeBasicArgs(execute, srcFile, statusdir, completedUrl));
             args.add("--");
+            args.add("cmd");
+            args.add("/c");
+            args.add("call");
             args.add(appConf.hivePath());
             args.add("--service");
             args.add("cli");
