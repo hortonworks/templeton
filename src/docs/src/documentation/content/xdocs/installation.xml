@@ -89,7 +89,7 @@ Server: Jetty(7.6.0.v20120127)
     configuration</a>.)</li>
    <li>
      <a href="http://incubator.apache.org/hcatalog/">HCatalog</a>.
-     Version 0.4.1 or higher.  The hcat executable must be both in the
+     Version 0.4.0 or higher.  The hcat executable must be both in the
      PATH and properly configured in the <a
      href="configuration.html">Templeton configuration</a>.
    </li>
@@ -128,7 +128,7 @@ Server: Jetty(7.6.0.v20120127)
    that is not yet released, you may need to build it yourself following the HCatalog
    instructions.)
 <source>
-hadoop fs -put /tmp/hcatalog-0.3.0.tar.gz /user/templeton/hcatalog-0.3.0.tar.gz
+hadoop fs -put /tmp/hcatalog-0.4.0.tar.gz /user/templeton/hcatalog-0.4.0.tar.gz
 </source>
   </li>
 
