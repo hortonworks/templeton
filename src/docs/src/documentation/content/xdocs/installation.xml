@@ -129,6 +129,7 @@ Server: Jetty(7.6.0.v20120127)
    instructions.)
 <source>
 hadoop fs -put /tmp/hcatalog-0.4.0.tar.gz /user/templeton/hcatalog-0.4.0.tar.gz
+hadoop fs -chmod 444 /user/templeton/hcatalog-0.4.0.tar.gz
 </source>
   </li>
 
@@ -137,6 +138,7 @@ hadoop fs -put /tmp/hcatalog-0.4.0.tar.gz /user/templeton/hcatalog-0.4.0.tar.gz
    the Pig tar.gz file and place it into HDFS.  For example:
 <source>
 hadoop fs -put /tmp/pig-0.9.2.tar.gz /user/templeton/pig-0.9.2.tar.gz
+hadoop fs -chmod 444 /user/templeton/pig-0.9.2.tar.gz
 </source>
   </li>
 
@@ -146,6 +148,8 @@ hadoop fs -put /tmp/pig-0.9.2.tar.gz /user/templeton/pig-0.9.2.tar.gz
 <source>
 hadoop fs -put $HADOOP_PREFIX/hadoop-0.20.205.0/contrib/streaming/hadoop-streaming-0.20.205.0.jar \
  /user/templeton/hadoop-streaming.jar
+hadoop fs -chmod 444  /user/templeton/hadoop-streaming.jar
+
 </source>
   </li>
 
@@ -157,6 +161,7 @@ hadoop fs -put $HADOOP_PREFIX/hadoop-0.20.205.0/contrib/streaming/hadoop-streami
    and should be placed into HDFS, as reflected in the current default configuration.
 <source>
 hadoop fs -put ugi.jar /user/templeton/ugi.jar
+hadoop fs -chmod 444 /user/templeton/ugi.jar
 </source>
   </li>
   </ul>
