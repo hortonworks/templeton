@@ -84,6 +84,7 @@ public class AppConfig extends Configuration {
     public static final String HADOOP_NAME         = "templeton.hadoop";
     public static final String HADOOP_CONF_DIR     = "templeton.hadoop.conf.dir";
     public static final String HCAT_NAME           = "templeton.hcat";
+    public static final String PYTHON_NAME         = "templeton.python";
     public static final String HIVE_ARCHIVE_NAME   = "templeton.hive.archive";
     public static final String HIVE_PATH_NAME      = "templeton.hive.path";
     public static final String HIVE_PROPS_NAME     = "templeton.hive.properties";
@@ -168,6 +169,7 @@ public class AppConfig extends Configuration {
     public String libJars()          { return get(LIB_JARS_NAME); }
     public String clusterHadoop()    { return get(HADOOP_NAME); }
     public String clusterHcat()      { return get(HCAT_NAME); }
+    public String clusterPython()    { return get(PYTHON_NAME); }
     public String pigPath()          { return get(PIG_PATH_NAME); }
     public String pigArchive()       { return get(PIG_ARCHIVE_NAME); }
     public String hivePath()         { return get(HIVE_PATH_NAME); }

@@ -78,6 +78,12 @@ limitations under the License.
   </property>
 
   <property>
+    <name>templeton.python</name>
+    <value>${env.PYTHON_CMD}</value>
+    <description>The path to the python executable.</description>
+  </property>
+
+  <property>
     <name>templeton.pig.archive</name>
     <value>hdfs:///user/templeton/pig-0.9.2.tar.gz</value>
     <description>The path to the Pig archive.</description>
