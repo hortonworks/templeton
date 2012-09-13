@@ -158,8 +158,7 @@ public class ExecServiceImpl implements ExecService {
         throws NotAuthorizedException, ExecuteException, IOException
     {
         DefaultExecutor executor = new DefaultExecutor();
-	executor.setExitValues(null);
-	//	executor.setExitValue(0);
+        executor.setExitValues(null);
 
         // Setup stdout and stderr
         int nbytes = appConf.getInt(AppConfig.EXEC_MAX_BYTES_NAME, -1);
@@ -246,9 +245,7 @@ public class ExecServiceImpl implements ExecService {
             }
         }
 
-	//	res.putAll(System.getenv());
-
-	if (env != null)
+        if (env != null)
             res.putAll(env);
         for(Map.Entry<String, String> envs : res.entrySet()){
 	    LOG.info("Env " + envs.getKey() + "=" + envs.getValue());

@@ -63,8 +63,7 @@ public class HcatDelegator extends LauncherDelegator {
             Map<String, String> env = TempletonUtils.hadoopUserEnv(user, cp);
             proxy.addEnv(env);
             proxy.addArgs(args);
-	    //return execService.run("C:\\Windows\\system32\\cmd.exe", args, env);
-	    return execService.run("C:\\Python27\\python.exe", args, env);
+            return execService.run("python", args, env);
         } catch (InterruptedException e) {
             throw new IOException(e);
         } finally {
@@ -76,12 +75,10 @@ public class HcatDelegator extends LauncherDelegator {
     private List<String> makeArgs(String exec, boolean format,
                                   String group, String permissions) {
         ArrayList<String> args = new ArrayList<String>();
-	//	args.add("/c");
-	//	args.add("C:\\Python27\\python.exe");
         args.add(appConf.clusterHcat());
         args.add("-e");
         args.add('"' + exec + '"');    
-	//args.add(exec);
+        //args.add(exec);
         if (TempletonUtils.isset(group)) {
             args.add("-g");
             args.add(group);

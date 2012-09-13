@@ -64,8 +64,7 @@ public class JarDelegator extends LauncherDelegator {
             args.addAll(makeLauncherArgs(appConf, statusdir,
                                          completedUrl, allFiles));
             args.add("--");
-            args.add("cmd");
-            args.add("/c");
+            TempletonUtils.addCmdForWindows(args);
             args.add(appConf.clusterHadoop());
             args.add("jar");
             args.add(TempletonUtils.hadoopFsPath(jar, appConf, runAs).getName());

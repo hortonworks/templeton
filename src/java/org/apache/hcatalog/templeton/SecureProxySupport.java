@@ -50,7 +50,6 @@ public class SecureProxySupport {
     public SecureProxySupport() {
         isEnabled = UserGroupInformation.isSecurityEnabled();
         LOG.debug("Hadoop security is " + (isEnabled ? "" : "not ") + "enabled");
-	System.err.println("Hadoop security is " + (isEnabled ? "" : "not ") + "enabled");
     }
 
     private static final Log LOG = LogFactory.getLog(SecureProxySupport.class);
@@ -135,16 +134,16 @@ public class SecureProxySupport {
         LOG.info("user: " + user + " loginUser: " + UserGroupInformation.getLoginUser().getUserName());
         final UserGroupInformation ugi = UgiFactory.getUgi(user);
 
-       final TokenWrapper twrapper = new TokenWrapper();
-       ugi.doAs(new PrivilegedExceptionAction<Object>() {
-           public Object run() throws IOException {
-               FileSystem fs = FileSystem.get(conf);
-               twrapper.token =  fs.getDelegationToken(ugi.getShortUserName());
-               return null;
-           }
-       });
-       return twrapper.token;
-       
+        final TokenWrapper twrapper = new TokenWrapper();
+        ugi.doAs(new PrivilegedExceptionAction<Object>() {
+            public Object run() throws IOException {
+                FileSystem fs = FileSystem.get(conf);
+                twrapper.token =  fs.getDelegationToken(ugi.getShortUserName());
+                return null;
+            }
+        });
+        return twrapper.token;
+
     }
 
     private void writeProxyDelegationTokens(final Token<?> fsToken,
