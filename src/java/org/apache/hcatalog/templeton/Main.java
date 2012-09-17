@@ -162,7 +162,6 @@ public class Main {
                        FilterMapping.REQUEST);
         root.addFilter(fHolder, "/" + SERVLET_PATH + "/v1/version/*", 
                        FilterMapping.REQUEST);
-        // root.addFilter(fHolder, "/v1/:version/*", FilterMapping.REQUEST);
 
         // Connect Jersey
         ServletHolder h = new ServletHolder(new ServletContainer(makeJerseyConfig()));
