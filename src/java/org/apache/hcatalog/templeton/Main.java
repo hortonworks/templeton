@@ -148,6 +148,13 @@ public class Main {
         // Add the Auth filter
         FilterHolder fHolder = makeAuthFilter();
 
+        /* 
+         * We add filters for each of the URIs supported by templeton.
+         * If we added the entire sub-structure using '/*', the mapreduce 
+         * notification cannot give the callback to templeton in secure mode.
+         * This is because mapreduce does not use secure credentials for 
+         * callbacks. So jetty would fail the request as unauthorized.
+         */ 
         root.addFilter(fHolder, "/" + SERVLET_PATH + "/v1/ddl/*", 
                        FilterMapping.REQUEST);
         root.addFilter(fHolder, "/" + SERVLET_PATH + "/v1/pig/*", 
