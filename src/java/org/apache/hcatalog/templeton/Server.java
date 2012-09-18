@@ -698,7 +698,7 @@ public class Server {
     @Path("queue/{jobid}")
     @Produces({MediaType.APPLICATION_JSON})
     public QueueStatusBean showQueueId(@PathParam("jobid") String jobid)
-        throws NotAuthorizedException, BadParam, IOException
+        throws NotAuthorizedException, BadParam, IOException, InterruptedException
     {
         verifyUser();
         verifyParam(jobid, ":jobid");
@@ -714,7 +714,7 @@ public class Server {
     @Path("queue/{jobid}")
     @Produces({MediaType.APPLICATION_JSON})
     public QueueStatusBean deleteQueueId(@PathParam("jobid") String jobid)
-        throws NotAuthorizedException, BadParam, IOException
+        throws NotAuthorizedException, BadParam, IOException, InterruptedException
     {
         verifyUser();
         verifyParam(jobid, ":jobid");
@@ -730,7 +730,7 @@ public class Server {
     @Path("queue")
     @Produces({MediaType.APPLICATION_JSON})
     public List<String> showQueueList()
-        throws NotAuthorizedException, BadParam, IOException
+        throws NotAuthorizedException, BadParam, IOException, InterruptedException
     {
         verifyUser();
 

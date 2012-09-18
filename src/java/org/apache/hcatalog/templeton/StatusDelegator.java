@@ -39,14 +39,12 @@ public class StatusDelegator extends TempletonDelegator {
     }
 
     public QueueStatusBean run(String user, String id)
-        throws NotAuthorizedException, BadParam, IOException
+        throws NotAuthorizedException, BadParam, IOException, InterruptedException
     {
-        UserGroupInformation ugi = UserGroupInformation.createRemoteUser(user);
         TempletonJobTracker tracker = null;
         JobState state = null;
         try {
-            tracker = new TempletonJobTracker(ugi,
-                                              JobTracker.getAddress(appConf),
+            tracker = new TempletonJobTracker(JobTracker.getAddress(appConf),
                                               appConf);
             JobID jobid = StatusDelegator.StringToJobID(id);
             if (jobid == null)
