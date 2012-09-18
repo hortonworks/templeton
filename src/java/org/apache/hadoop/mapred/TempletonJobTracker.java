@@ -19,6 +19,7 @@ package org.apache.hadoop.mapred;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.security.PrivilegedExceptionAction;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.ipc.RPC;
 import org.apache.hadoop.net.NetUtils;
@@ -28,24 +29,29 @@ import org.apache.hadoop.security.UserGroupInformation;
  * Communicate with the JobTracker as a specific user.
  */
 public class TempletonJobTracker {
-    private JobSubmissionProtocol cnx;
+    private final JobSubmissionProtocol cnx;
 
     /**
      * Create a connection to the Job Tracker.
      */
-    public TempletonJobTracker(UserGroupInformation ugi,
-                               InetSocketAddress addr,
-                               Configuration conf)
-        throws IOException
+    public TempletonJobTracker(final InetSocketAddress addr,
+                               final Configuration conf)
+        throws IOException, InterruptedException
     {
-        cnx = (JobSubmissionProtocol)
+      UserGroupInformation ugi = UserGroupInformation.getLoginUser();
+      cnx = 
+        ugi.doAs(new PrivilegedExceptionAction<JobSubmissionProtocol>() {
+          public JobSubmissionProtocol run ()
+          throws IOException, InterruptedException {
+        return (JobSubmissionProtocol)
             RPC.getProxy(JobSubmissionProtocol.class,
                          JobSubmissionProtocol.versionID,
                          addr,
-                         ugi,
                          conf,
                          NetUtils.getSocketFactory(conf,
                                                    JobSubmissionProtocol.class));
+          }
+        });
     }
 
     /**
