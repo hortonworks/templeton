@@ -17,6 +17,7 @@
  */
 package org.apache.hcatalog.templeton;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -29,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.Semaphore;
+
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
 import org.apache.commons.exec.ExecuteException;
@@ -36,41 +38,37 @@ import org.apache.commons.exec.ExecuteWatchdog;
 import org.apache.commons.exec.PumpStreamHandler;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import org.apache.hadoop.util.Shell;
 
 
-class StreamGobbler extends Thread
+class StreamOutputWriter extends Thread
 {
     InputStream is;
     String type;
     PrintWriter out;
     
-    StreamGobbler(InputStream is, String type, OutputStream outStream)
+    StreamOutputWriter(InputStream is, String type, OutputStream outStream)
     {
         this.is = is;
         this.type = type;
-        this.out = new PrintWriter(outStream,true);
+        this.out = new PrintWriter(outStream, true);
     }
     
+    @Override
     public void run()
     {
         try
-	    {
-		InputStreamReader isr = new InputStreamReader(is);
-		BufferedReader br = new BufferedReader(isr);
-		String line=null;
-		while ( (line = br.readLine()) != null){
-		    out.println(line);
-		    System.out.println(line);
-		}
-	    } catch (IOException ioe)
-	    {
-		ioe.printStackTrace();  
-	    }
+            {
+                BufferedReader br =
+                        new BufferedReader(new InputStreamReader(is));
+                String line = null;
+                while ( (line = br.readLine()) != null){
+                    out.println(line);
+                }
+            } catch (IOException ioe)
+            {
+                ioe.printStackTrace();  
+            }
     }
 }
 
@@ -176,7 +174,10 @@ public class ExecServiceImpl implements ExecService {
         LOG.info("Running: " + cmd);
         ExecBean res = new ExecBean();
 
-	if(true){
+        if(Shell.WINDOWS){
+            //The default executor is sometimes causing failure on windows. hcat
+            // command sometimes returns non zero exit status with it. It seems
+            // to hit some race conditions on windows. 
             env = execEnv(env);
             String[] envVals = new String[env.size()];
             int i=0;
@@ -185,30 +186,29 @@ public class ExecServiceImpl implements ExecService {
                 System.out.println("Setting " +  kv.getKey() + "=" + kv.getValue());
             }
             Process proc = Runtime.getRuntime().exec(cmd.toStrings(), envVals);
-            // any error message?
-            StreamGobbler errorGobbler = new
-                StreamGobbler(proc.getErrorStream(), "ERROR", errStream);
+            //consume stderr
+            StreamOutputWriter errorGobbler = new
+                StreamOutputWriter(proc.getErrorStream(), "ERROR", errStream);
 
-            // any output?
-            StreamGobbler outputGobbler = new
-                StreamGobbler(proc.getInputStream(), "OUTPUT", outStream);
+            //consume stdout
+            StreamOutputWriter outputGobbler = new
+                StreamOutputWriter(proc.getInputStream(), "OUTPUT", outStream);
 
-            // kick them off
+            //start collecting input streams
             errorGobbler.start();
             outputGobbler.start();
-            try {
+            //execute
+            try{
                 res.exitcode = proc.waitFor();
             } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                throw new IOException(e);
             }
-	    
-	    errorGobbler.out.flush();
+            //flush
+            errorGobbler.out.flush();
             outputGobbler.out.flush();
         }
         else {
             res.exitcode = executor.execute(cmd, execEnv(env));
-
         }
         String enc = appConf.get(AppConfig.EXEC_ENCODING_NAME);
         res.stdout = outStream.toString(enc);
@@ -248,7 +248,7 @@ public class ExecServiceImpl implements ExecService {
         if (env != null)
             res.putAll(env);
         for(Map.Entry<String, String> envs : res.entrySet()){
-	    LOG.info("Env " + envs.getKey() + "=" + envs.getValue());
+            LOG.info("Env " + envs.getKey() + "=" + envs.getValue());
         }
         return res;
     }
