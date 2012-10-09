@@ -94,6 +94,7 @@ public class LauncherDelegator extends TempletonDelegator {
     private String queueAsUser(UserGroupInformation ugi, final List<String> args)
         throws IOException, InterruptedException
     {
+        LOG.debug("Running Toolrunner with args: " + args);
         String id = ugi.doAs(new PrivilegedExceptionAction<String>() {
                 public String run() throws Exception {
                     String[] array = new String[args.size()];

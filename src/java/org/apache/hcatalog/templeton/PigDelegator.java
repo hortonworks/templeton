@@ -73,6 +73,7 @@ public class PigDelegator extends LauncherDelegator {
             args.add(appConf.pigArchive());
 
             args.add("--");
+            TempletonUtils.addCmdForWindows(args);
             args.add(appConf.pigPath());
             args.addAll(pigArgs);
             if (TempletonUtils.isset(execute)) {

@@ -42,9 +42,18 @@
     <mkdir dir="${test.location}"/>
   </target>
 
+  <condition property="streaming.test" value="jobsubmission_streaming_win.conf">
+    <os family="windows"/>
+  </condition>
+
+  <condition property="streaming.test" value="jobsubmission_streaming_lin.conf">
+    <os family="unix"/>
+  </condition>
+
+
   <target name="test" depends="property-check, init-test" >
     <property name="tests.to.run" value=""/>
-    <exec executable="${harness.dir}/test_harness.pl" dir="${test.location}" failonerror="true">
+    <exec executable="perl" dir="${test.location}" failonerror="true">
       <env key="HARNESS_ROOT" value="${harness.dir}"/>
       <env key="DRIVER_ROOT" value="${basedir}/drivers"/>
       <env key="TH_WORKING_DIR" value="${test.location}"/>
@@ -57,8 +66,10 @@
       <env key="USER_NAME" value="${test.user.name}"/>
       <env key="HARNESS_CONF" value="${basedir}/conf/default.conf"/>
       <env key="SECURE_MODE" value="${secure.mode}"/>
+      <arg value="${harness.dir}/test_harness.pl"/>
       <arg line="${tests.to.run}"/>
       <arg value="${basedir}/tests/serverstatus.conf"/>
+      <arg value="${basedir}/tests/${streaming.test}"/>
       <arg value="${basedir}/tests/ddl.conf"/>
       <arg value="${basedir}/tests/jobsubmission.conf"/>
     </exec>
@@ -66,7 +77,7 @@
 
   <target name="test-hcat-authorization" depends="property-check, init-test" >
     <property name="tests.to.run" value=""/>
-    <exec executable="${harness.dir}/test_harness.pl" dir="${test.location}" failonerror="true">
+    <exec executable="perl" dir="${test.location}" failonerror="true">
       <env key="HARNESS_ROOT" value="${harness.dir}"/>
       <env key="DRIVER_ROOT" value="${basedir}/drivers"/>
       <env key="TH_WORKING_DIR" value="${test.location}"/>
@@ -83,6 +94,7 @@
       <env key="HARNESS_CONF" value="${basedir}/conf/default.conf"/>
       <env key="SECURE_MODE" value="${secure.mode}"/>
       <env key="KEYTAB_DIR" value="${keytab.dir}"/>
+      <arg value="${harness.dir}/test_harness.pl"/>
       <arg line="${tests.to.run}"/>
       <arg value="${basedir}/tests/hcatperms.conf"/>
     </exec>

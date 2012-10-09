@@ -46,7 +46,7 @@
                 rev="1.1"
                 conf="common->master"/>
 
-    <dependency org="org.apache.hcatalog" name="hcatalog" rev="0.4.0"
+    <dependency org="org.apache.hcatalog" name="hcatalog" rev="0.4.1"
                 conf="common->default"/>
     <dependency org="org.apache.hive" name="hive-metastore"
 		rev="${hive.version}" conf="common->master"/>

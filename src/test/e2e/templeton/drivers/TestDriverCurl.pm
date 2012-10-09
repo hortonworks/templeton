@@ -155,6 +155,9 @@ sub globalSetup
     # Setup the output path
     my $me = `whoami`;
     chomp $me;
+    #usernames on windows can be "domain\username" change the "\"
+    # as runid is used in file names
+    $me =~ s/\\/_/;
     $globalHash->{'runid'} = $me . "." . time;
 
     # if "-ignore false" was provided on the command line,
@@ -495,7 +498,7 @@ sub execCurlCmd(){
   push @curl_cmd, ("-X", $method, "-o", $res_body, "-D", $res_header);  
   push @curl_cmd, ($url);
 
-  print $log "$0:$subName Going to run command : " .  join (' ', @curl_cmd);
+  print $log "$0:$subName Going to run command : " .  join (' , ', @curl_cmd);
   print $log "\n";
 
 
