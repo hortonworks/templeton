@@ -26,6 +26,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.security.PrivilegedExceptionAction;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -38,6 +39,7 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.JobID;
 import org.apache.hadoop.security.UserGroupInformation;
+import org.apache.hadoop.util.Shell;
 import org.apache.hadoop.util.StringUtils;
 
 /**
@@ -280,5 +282,13 @@ public class TempletonUtils {
         }
 
         return env;
+    }
+
+    public static void addCmdForWindows(ArrayList<String> args) {
+        if(Shell.WINDOWS){    
+            args.add("cmd");
+            args.add("/c");
+            args.add("call");
+        }
     }
 }

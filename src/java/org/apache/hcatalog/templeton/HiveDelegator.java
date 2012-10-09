@@ -23,6 +23,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.exec.ExecuteException;
+import org.apache.hadoop.util.Shell;
 import org.apache.hcatalog.templeton.tool.TempletonUtils;
 
 /**
@@ -57,6 +58,7 @@ public class HiveDelegator extends LauncherDelegator {
         try {
             args.addAll(makeBasicArgs(execute, srcFile, statusdir, completedUrl));
             args.add("--");
+            TempletonUtils.addCmdForWindows(args);
             args.add(appConf.hivePath());
             args.add("--service");
             args.add("cli");

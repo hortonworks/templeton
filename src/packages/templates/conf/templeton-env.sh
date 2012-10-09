@@ -14,3 +14,5 @@
 # limitations under the License.
 
 export JAVA_HOME=${JAVA_HOME}
+
+export PYTHON_CMD=`which python`
