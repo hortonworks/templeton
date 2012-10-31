@@ -51,12 +51,13 @@
 
     <ibiblio name="maven2" root="${repo.maven.org}" pattern="${maven2.pattern.ext}" m2compatible="true"/>
     <chain name="default" dual="true">
-      <resolver ref="fs"/>
+      <resolver ref="local"/>
       <resolver ref="maven2"/>
       <resolver ref="jboss"/>
     </chain>
     <chain name="internal">
       <resolver ref="fs"/>
+      <resolver ref="local"/>
       <resolver ref="maven2"/>
       <resolver ref="jboss"/>
     </chain>
@@ -65,6 +66,6 @@
     </chain>
   </resolvers>
   <modules>
-    <module organisation="org.apache.incubator/hcatalog" name=".*" resolver="internal"/>
+    <module organisation="org.apache.hcatalog" name=".*" resolver="internal"/>
   </modules>
 </ivysettings>
