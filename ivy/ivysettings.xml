@@ -55,7 +55,7 @@
       <resolver ref="maven2"/>
       <resolver ref="jboss"/>
     </chain>
-    <chain name="internal">
+    <chain name="internal" dual="true">
       <resolver ref="fs"/>
       <resolver ref="local"/>
       <resolver ref="maven2"/>
