@@ -41,7 +41,7 @@
     <filesystem name="fs" m2compatible="true" checkconsistency="false" force="${force-resolve}"
          checkmodified="true" changingPattern=".*-SNAPSHOT">
       <artifact pattern="${repo.dir}/${maven2.pattern.ext}"/>
-      <ivy pattern="${repo.dir}/[organisation]/[module]/[revision]/[module]-[revision].pom"/>
+      <ivy pattern="${repo.dir}/[organisation]/[module]/[revision]/[module]-[revision](-[classifier]).pom"/>
     </filesystem>
     <ibiblio
       name="jboss"
