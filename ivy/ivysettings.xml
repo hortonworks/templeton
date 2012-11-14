@@ -34,11 +34,12 @@
   <property name="repo.dir" value="${user.home}/.m2/repository"/>
   <property name="resolvers" value="default" override="false"/>
   <property name="maven2.pattern.ext" value="${maven2.pattern}.[ext]"/>
+  <property name="force-resolve" value="false" override="false"/>
   <!-- pull in the local repository -->
   <include url="${ivy.default.conf.dir}/ivyconf-local.xml"/>
   <settings defaultResolver="${resolvers}"/>
   <resolvers>
-    <filesystem name="fs" m2compatible="true" checkconsistency="false" force="${force-resolve}"
+    <filesystem name="fs" m2compatible="true" checkconsistency="false" force="${force-resolve}" alwaysCheckExactRevision="true"
          checkmodified="true" changingPattern=".*-SNAPSHOT">
       <artifact pattern="${repo.dir}/${maven2.pattern.ext}"/>
       <ivy pattern="${repo.dir}/[organisation]/[module]/[revision]/[module]-[revision](-[classifier]).pom"/>
