@@ -486,7 +486,7 @@ sub execCurlCmd(){
     $testCmd->{'http_daemon'} = $d;
     $testCmd->{'callback_url'} = $d->url . 'templeton/$jobId';
     push @curl_cmd, ('-d', 'callback=' . $testCmd->{'callback_url'});
-    #	push ${testCmd->{'post_options'}}, ('callback=' . $testCmd->{'callback_url'});
+    push @{$testCmd->{$argPrefix . 'post_options'}}, ('callback=' . $testCmd->{'callback_url'});
     #	#my @options = @{$testCmd->{'post_options'}};
     #	print $log "post options  @options\n";
   }
@@ -742,6 +742,58 @@ sub compare
             my $runStateVal = $self->getRunStateNum($testCmd->{'check_job_complete'});
             if ( (!defined $runState) || $runState ne $runStateVal) {
               print $log "check_job_complete failed. got runState  $runState,  expected  $runStateVal";
+              $result = 0;
+            }            
+          }
+
+	  #Check userargs
+	  print $log "$0::$subName INFO Checking userargs";
+          my @options = @{$testCmd->{'post_options'}};
+          if( !defined $res_hash->{'userargs'}){
+            print $log "$0::$subName INFO expected userargs" 
+                . " but userargs not defined\n";
+            $result = 0;
+          }
+
+	  #create exp_userargs hash from @options
+          my %exp_userargs = ();
+          foreach my $opt ( @options ){
+            print $log "opt $opt";
+            my ($key, $val) = split q:=:, $opt, 2;   
+            if(defined $exp_userargs{$key}){
+
+              #if we have already seen this value
+              #then make the value an array and push new value in
+              if(ref($exp_userargs{$key}) eq ""){
+                my @ar = ($exp_userargs{$key});
+                $exp_userargs{$key} = \@ar;
+              }
+              my $ar = $exp_userargs{$key}; 
+              push @$ar, ($val); 
+            }
+            else{
+              $exp_userargs{$key} = $val;	
+            }
+          }
+
+          my %r_userargs = %{$res_hash->{'userargs'}};
+          foreach my $key( keys %exp_userargs){
+            if( !defined $r_userargs{$key}){
+              print $log "$0::$subName INFO $key not found in userargs \n";
+              $result = 0;
+              next;
+            }
+              
+            print $log "$0::$subName DEBUG comparing expected " 
+                . " $key ->" . dump($exp_userargs{$key})
+                . " With result $key ->" . dump($r_userargs{$key}) . "\n";
+
+            if (!Compare($exp_userargs{$key}, $r_userargs{$key})) {
+              print $log "$0::$subName INFO check failed:" 
+                  . " json compare failed. For field "
+                  . "$key, regex <" . dump($r_userargs{$key})
+                  . "> did not match the result <" . dump($exp_userargs{$key})
+                  . ">\n";
               $result = 0;
             }
           }
