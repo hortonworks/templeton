@@ -627,7 +627,7 @@ sub compare
         print $log "Comparing $key: $json_field_val with regex /$regex_expected_value/\n";
 
         if ($json_field_val !~ /$regex_expected_value/s) {
-          print $log "$0::$subName INFO check failed:" 
+          print $log "$0::$subName WARN check failed:" 
             . " json pattern check failed. For field "
               . "$key, regex <" . $regex_expected_value 
                 . "> did not match the result <" . $json_field_val
@@ -642,7 +642,7 @@ sub compare
         print $log "Comparing $key: " . dump($json_field_val) . ",expected value:  " . dump($regex_expected_obj);
 
         if (!Compare($json_field_val, $regex_expected_obj)) {
-          print $log "$0::$subName INFO check failed:" 
+          print $log "$0::$subName WARN check failed:" 
             . " json compare failed. For field "
               . "$key, regex <" . dump($regex_expected_obj)
                 . "> did not match the result <" . dump($json_field_val)
@@ -659,7 +659,7 @@ sub compare
       sleep $testCmd->{'kill_job_timeout'};
       my $jobid = $json_hash->{'id'};
       if (!defined $jobid) {
-        print $log "$0::$subName INFO check failed: " 
+        print $log "$0::$subName WARN check failed: " 
           . "no jobid (id field)found in result";
         $result = 0;
       } else {
@@ -704,7 +704,7 @@ sub compare
     if (defined $testCmd->{'check_job_created'} || defined  $testCmd->{'check_job_complete'}) {
       my $jobid = $json_hash->{'id'};
       if (!defined $jobid) {
-        print $log "$0::$subName INFO check failed: " 
+        print $log "$0::$subName WARN check failed: " 
           . "no jobid (id field)found in result";
         $result = 0;
       } else {
@@ -712,7 +712,7 @@ sub compare
         my $json = new JSON;
         my $res_hash = $json->utf8->decode($jobResult->{'body'});
         if (! defined $res_hash->{'status'}) {
-          print $log "$0::$subName INFO check failed: " 
+          print $log "$0::$subName WARN check failed: " 
             . "jobresult not defined ";
           $result = 0;
         }
@@ -733,7 +733,7 @@ sub compare
             $res_hash = $json->utf8->decode($jobResult->{'body'});
           }
           if ( (!defined $jobComplete) || lc($jobComplete) ne "true") {
-            print $log "$0::$subName INFO check failed: " 
+            print $log "$0::$subName WARN check failed: " 
               . " timeout on wait for job completion ";
             $result = 0;
           } else { 
@@ -789,7 +789,7 @@ sub compare
                 . " With result $key ->" . dump($r_userargs{$key}) . "\n";
 
             if (!Compare($exp_userargs{$key}, $r_userargs{$key})) {
-              print $log "$0::$subName INFO check failed:" 
+              print $log "$0::$subName WARN check failed:" 
                   . " json compare failed. For field "
                   . "$key, regex <" . dump($r_userargs{$key})
                   . "> did not match the result <" . dump($exp_userargs{$key})
