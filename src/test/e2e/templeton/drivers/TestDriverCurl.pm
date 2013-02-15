@@ -739,7 +739,7 @@ sub compare
             $result = 0;
           } else { 
             # job has completed, check the runState value
-            if (defined(testCmd->{'check_job_complete'})) {
+            if (defined($testCmd->{'check_job_complete'})) {
               my $runState = $res_hash->{'status'}->{'runState'};
               my $runStateVal = $self->getRunStateNum($testCmd->{'check_job_complete'});
               if ( (!defined $runState) || $runState ne $runStateVal) {
