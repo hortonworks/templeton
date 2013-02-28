@@ -670,8 +670,14 @@ sub compare
 
     #try to get the call back url request until timeout
     if ($result == 1 && defined $testCmd->{'check_call_back'}) {
+
+      my $timeout = 300; #wait for 5 mins for callback
+      if(defined $testCmd->{'timeout'}){
+        $timeout = $testCmd->{'timeout'};
+      }
+
       my $d = $testCmd->{'http_daemon'};
-      $d->timeout(300);         #wait for 5 mins
+      $d->timeout($timeout);
       my $url_requested;
       $testCmd->{'callback_url'} =~ s/\$jobId/$json_hash->{'id'}/g;
       print $log "Expanded callback url : <" . $testCmd->{'callback_url'} . ">\n";
