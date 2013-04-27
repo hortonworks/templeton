@@ -34,6 +34,7 @@ use strict;
 use English;
 use Storable qw(dclone);
 use File::Glob ':glob';
+use JSON::Path;
 
 my $passedStr = 'passed';
 my $failedStr = 'failed';
@@ -295,6 +296,15 @@ sub replaceParameters
       }
     }    
 
+    if (defined $testCmd->{$aPfix . 'json_path'}) {
+      my $json_path_matches = $testCmd->{$aPfix . 'json_path'};
+      my @keys = keys %{$json_path_matches};
+
+      foreach my $key (@keys) {
+        my $new_value = $self->replaceParametersInArg($json_path_matches->{$key}, $testCmd, $log);
+        $json_path_matches->{$key} = $new_value;
+      }
+    }
 
   }
 
@@ -592,6 +602,24 @@ sub compare
 
     my $json_hash;
     my %json_info;
+    # for information on JSONPath, check http://goessner.net/articles/JsonPath/
+    if (defined $testCmd->{'json_path'}) {
+      my $json_matches = $testCmd->{'json_path'};
+      foreach my $key (keys %$json_matches) {
+        my $regex_expected_value = $json_matches->{$key};
+        my $path = JSON::Path->new($key);
+        my $value = $path->value($testResult->{'body'});
+        if ($value !~ /$regex_expected_value/s) {
+          print $log "$0::$subName INFO check failed:"
+            . " json pattern check failed. For field "
+              . "$key, regex <" . $regex_expected_value
+                . "> did not match the result <" . $value
+                  . ">\n";
+          $result = 0;
+          last;
+        }
+      }
+    } 
     if (defined $testCmd->{'json_field_substr_match'} || $testCmd->{'json_field_match_object'}) {
       my $json = new JSON;
       $json_hash = $json->utf8->decode($testResult->{'body'});
