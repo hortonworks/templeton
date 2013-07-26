@@ -608,12 +608,23 @@ sub compare
       foreach my $key (keys %$json_matches) {
         my $regex_expected_value = $json_matches->{$key};
         my $path = JSON::Path->new($key);
-        # decode $testResult->{'body'} to an array of hash
-        my $body = JSON::PP->new->decode($testResult->{'body'});
-        # in the tests, we run the job with jobName = "PigLatin:loadstore.pig"
-        # now we will filter $body to leave only records with that jobName
-        my @filtered_body = grep {$_->{detail}{profile}{jobName} eq "PigLatin:loadstore.pig"}  @$body;
-        my $value = $path->value(@filtered_body);
+        # if called from conffile: jobstatus.conf, testgroup: JOBS, testnum: 4 
+        if () {
+	        # decode $testResult->{'body'} to an array of hash
+	        my $body = JSON::PP->new->decode($testResult->{'body'});
+	        # in the tests, we run the job with jobName = "PigLatin:loadstore.pig"
+	        # now we will filter $body to leave only records with that jobName
+	        # make sure that it is specific to this test group and test case
+	        # use parentId to differentiate between templeton controller and the loadstore pig job
+	        my @filtered_body = grep {$_->{detail}{profile}{jobName} eq "PigLatin:loadstore.pig"}  @$body;
+			my @sorted_filtered_body = sort { $a->{detail}{startTime} <=> $b->{detail}{startTime} } @filtered_body;
+	  		my $json_string = encode_json \@sorted_filtered_body;   
+        	
+        } else {
+        	
+        }
+            
+        my $value = $path->value($json_string);
         if ($value !~ /$regex_expected_value/s) {
           print $log "$0::$subName INFO check failed:"
             . " json pattern check failed. For field "
