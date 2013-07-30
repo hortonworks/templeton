@@ -608,18 +608,16 @@ sub compare
       foreach my $key (keys %$json_matches) {
         my $regex_expected_value = $json_matches->{$key};
         my $path = JSON::Path->new($key);
-        my $value;
+        my $value; 
         # when filter_job_status is defined 
         if (defined $testCmd->{'filter_job_status'}) {
 	        # decode $testResult->{'body'} to an array of hash
 	        my $body = decode_json $testResult->{'body'};
 	        # in the tests, we run this case with jobName = "PigLatin:loadstore.pig"
 	        # filter $body to leave only records with this jobName
-	        my @filtered_body = grep {$_->{detail}{profile}{jobName} eq "PigLatin:loadstore.pig"}  @$body;
-			my @sorted_filtered_body = sort { $a->{detail}{startTime} <=> $b->{detail}{startTime} } @filtered_body;
-	  		# convert back to json string for use in JSON::Path#value
-	  		my $filtered_json_body = encode_json \@sorted_filtered_body;   
-        	$value = $path->value($filtered_json_body);
+	        my @filtered_body = grep {($_->{detail}{profile}{jobName} eq "PigLatin:loadstore.pig")}  @$body;
+			my @sorted_filtered_body = sort { $a->{id} <=> $b->{id} } @filtered_body;
+        	$value = $path->value(\@sorted_filtered_body);
         } else {
         	$value = $path->value($testResult->{'body'});
         }
