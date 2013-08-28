@@ -605,7 +605,7 @@ sub compare
     # for information on JSONPath, check http://goessner.net/articles/JsonPath/
     if (defined $testCmd->{'json_path'}) {
       my $json_matches = $testCmd->{'json_path'};
-      foreach my $key (keys %$json_matches) {
+      foreach my $key (sort keys %$json_matches) {
         my $regex_expected_value = $json_matches->{$key};
         my $path = JSON::Path->new($key);
         my $value; 
@@ -616,7 +616,7 @@ sub compare
 	        # in the tests, we run this case with jobName = "PigLatin:loadstore.pig"
 	        # filter $body to leave only records with this jobName
 	        my @filtered_body = grep {($_->{detail}{profile}{jobName} eq "PigLatin:loadstore.pig")}  @$body;
-			my @sorted_filtered_body = sort { $a->{id} <=> $b->{id} } @filtered_body;
+			my @sorted_filtered_body = sort { $a->{id} cmp $b->{id} } @filtered_body;
         	$value = $path->value(\@sorted_filtered_body);
         } else {
         	$value = $path->value($testResult->{'body'});
