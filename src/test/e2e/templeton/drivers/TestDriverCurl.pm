@@ -759,7 +759,7 @@ sub compare
           #first wait for job completion
           while ($NUM_RETRIES-- > 0) {
             $jobComplete = $res_hash->{'status'}->{'jobComplete'};
-            if (defined $jobComplete && lc($jobComplete) eq "true") {
+            if (defined $jobComplete && lc($jobComplete) eq "true" && $res_hash->{'exitValue'} ne '') {
               last;
             }
             sleep $SLEEP_BETWEEN_RETRIES;
