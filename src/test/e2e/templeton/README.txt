@@ -83,6 +83,11 @@ The <keytab files dir> is expected to have keytab filenames of the form - user_n
 Notes
 -----
 
+Make sure that queue name for templeton jobs is set to "joblauncher" in webhcat-site.xml
+<property>
+  <name>templeton.hadoop.queue.name</name> 
+  <value>joblauncher</value> 
+</property>
 
 
 Enable webhdfs by adding the following to your hadoop hdfs-site.xml :

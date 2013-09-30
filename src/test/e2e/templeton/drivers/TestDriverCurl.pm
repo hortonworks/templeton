@@ -608,7 +608,20 @@ sub compare
       foreach my $key (sort keys %$json_matches) {
         my $regex_expected_value = $json_matches->{$key};
         my $path = JSON::Path->new($key);
-        my $value = $path->value($testResult->{'body'});
+        my $value; 
+        # when check_templeton_queue_name is defined 
+        if (defined $testCmd->{'check_templeton_queue_name'}) {
+	        # decode $testResult->{'body'} to an array of hash
+	        my $body = decode_json $testResult->{'body'};
+	        # in the tests, we run this case with jobName = "TempletonControllerJob"
+	        # filter $body to leave only records with this jobName
+	        my @filtered_body = grep {($_->{detail}{profile}{jobName} eq "TempletonControllerJob")}  @$body;
+			my @sorted_filtered_body = sort { $a->{id} cmp $b->{id} } @filtered_body;
+        	$value = $path->value(\@sorted_filtered_body);
+        } else {
+        	$value = $path->value($testResult->{'body'});
+        }
+        
         if ($value !~ /$regex_expected_value/s) {
           print $log "$0::$subName INFO check failed:"
             . " json pattern check failed. For field "
