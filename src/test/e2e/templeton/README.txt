@@ -89,6 +89,8 @@ Make sure that queue name for templeton jobs is set to "joblauncher" in webhcat-
   <value>joblauncher</value> 
 </property>
 
+The tests in jobconcurrency.conf try to ensure that Templeton Controller jobs end up in the joblauncher queue.
+
 
 Enable webhdfs by adding the following to your hadoop hdfs-site.xml :
 
