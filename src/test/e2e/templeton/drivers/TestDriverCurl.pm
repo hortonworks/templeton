@@ -855,6 +855,82 @@ sub compare
               $result = 0;
             }
           }
+		  if ($result != 0 && $testCmd->{'check_logs'}) {
+            my $testCmdBasics = $self->copyTestBasicConfig($testCmd);
+            $testCmdBasics->{'method'} = 'GET';
+            $testCmdBasics->{'url'} = ':WEBHDFS_URL:/webhdfs/v1:OUTDIR:' . '/status/logs?op=LISTSTATUS';
+            my $curl_result = $self->execCurlCmd($testCmdBasics, "", $log);
+            my $path = JSON::Path->new("FileStatuses.FileStatus[*].pathSuffix");
+            my @value = $path->values($curl_result->{'body'});
+            if ($testCmd->{'check_logs'}->{'job_num'} && $testCmd->{'check_logs'}->{'job_num'} ne (scalar @value)-1) {
+              print $log "$0::$subName INFO check failed: "
+                . " Expect " . $testCmd->{'check_logs'}->{'job_num'} . " jobs in logs, but get " . scalar @value;
+              $result = 0;
+              return $result;
+            }
+            foreach my $jobid (@value) {
+              if ($jobid eq 'list.txt') {
+                next;
+              }
+              my $testCmdBasics = $self->copyTestBasicConfig($testCmd);
+              $testCmdBasics->{'method'} = 'GET';
+              $testCmdBasics->{'url'} = ':WEBHDFS_URL:/webhdfs/v1:OUTDIR:' . '/status/logs/' . $jobid . '?op=LISTSTATUS';
+              my $curl_result = $self->execCurlCmd($testCmdBasics, "", $log);
+
+              my $path = JSON::Path->new("FileStatuses.FileStatus[*]");
+              my @value = $path->values($curl_result->{'body'});
+
+              my $foundjobconf = 0;
+              foreach my $elem (@value) {
+                if ($elem->{'pathSuffix'} eq "job.xml.html") {
+                  $foundjobconf = 1;
+                  if ($elem->{'length'} eq "0") {
+                    print $log "$0::$subName INFO check failed: "
+                      . " job.xml.html for " . $jobid . " is empty";
+					$result = 0;
+					return $result;
+                  }
+                  next;
+                }
+                my $attempt = $elem->{'pathSuffix'};
+                my $testCmdBasics = $self->copyTestBasicConfig($testCmd);
+                $testCmdBasics->{'method'} = 'GET';
+                $testCmdBasics->{'url'} = ':WEBHDFS_URL:/webhdfs/v1:OUTDIR:' . '/status/logs/' . $jobid . '/' . $attempt . '?op=LISTSTATUS';
+                my $curl_result = $self->execCurlCmd($testCmdBasics, "", $log);
+                my $path = JSON::Path->new("FileStatuses.FileStatus[*].pathSuffix");
+                my @value = $path->values($curl_result->{'body'});
+                my @files = ('stderr', 'stdout', 'syslog');
+                foreach my $file (@files) {
+                  if ( !grep( /$file/, @value ) ) {
+                    print $log "$0::$subName INFO check failed: "
+                      . " Cannot find " . $file . " in logs/" . $attempt;
+                    $result = 0;
+                    return $result;
+                  }
+                }
+                $path = JSON::Path->new("FileStatuses.FileStatus[*].length");
+                @value = $path->values($curl_result->{'body'});
+                my $foundnonzerofile = 0;
+                foreach my $length (@value) {
+                  if ($length ne "0") {
+                    $foundnonzerofile = 1;
+                  }
+                }
+                if (!$foundnonzerofile) {
+                  print $log "$0::$subName INFO check failed: "
+                    . " All files in logs/" . $attempt . " are empty";
+                  $result = 0;
+                  return $result;
+                }
+              }
+              if (!$foundjobconf) {
+                print $log "$0::$subName INFO check failed: "
+                  . " Cannot find job.xml.html for " . $jobid;
+				$result = 0;
+				return $result;
+              }
+            }
+          }		  
         }
       }
     }
