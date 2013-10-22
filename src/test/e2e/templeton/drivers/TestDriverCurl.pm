@@ -704,7 +704,7 @@ sub compare
           . "no jobid (id field)found in result";
         $result = 0;
       } else {
-        $self->killJob($testCmd, $jobid, $log);
+        $self->killJob2($testCmd, $jobid, $log);
       }
     }
 
@@ -756,7 +756,7 @@ sub compare
           . "no jobid (id field)found in result";
         $result = 0;
       } else {
-        my $jobResult = $self->getJobResult($testCmd, $jobid, $log);
+        my $jobResult = $self->getJobResult2($testCmd, $jobid, $log);
         my $json = new JSON;
         my $res_hash = $json->utf8->decode($jobResult->{'body'});
         if (! defined $res_hash->{'status'}) {
@@ -776,7 +776,7 @@ sub compare
               last;
             }
             sleep $SLEEP_BETWEEN_RETRIES;
-            $jobResult = $self->getJobResult($testCmd, $jobid, $log);
+            $jobResult = $self->getJobResult2($testCmd, $jobid, $log);
             $json = new JSON;
             $res_hash = $json->utf8->decode($jobResult->{'body'});
           }
@@ -1030,6 +1030,7 @@ sub getRunStateNum{
 
 
 ###############################################################################
+# Deprecated, use getJobResult2
 sub getJobResult{
   my ($self, $testCmd, $jobid, $log) = @_;
   my $testCmdBasics = $self->copyTestBasicConfig($testCmd);
@@ -1040,12 +1041,34 @@ sub getJobResult{
   return $self->execCurlCmd($testCmdBasics, "", $log);
 }
 ###############################################################################
+sub getJobResult2{
+  my ($self, $testCmd, $jobid, $log) = @_;
+  my $testCmdBasics = $self->copyTestBasicConfig($testCmd);
+  $testCmdBasics->{'method'} = 'GET';
+  $testCmdBasics->{'num'} = $testCmdBasics->{'num'} . "_jobStatusCheck";
+  $testCmdBasics->{'url'} = ':TEMPLETON_URL:/templeton/v1/jobs/' 
+    . $jobid . '?' . "user.name=:UNAME:" ;
+  return $self->execCurlCmd($testCmdBasics, "", $log);
+}
+###############################################################################
+# Deprecated, use killJob2
 sub killJob{
   my ($self, $testCmd, $jobid, $log) = @_;
   my $testCmdBasics = $self->copyTestBasicConfig($testCmd);
   $testCmdBasics->{'method'} = 'DELETE';
   $testCmdBasics->{'num'} = $testCmdBasics->{'num'} . "_killJob";
   $testCmdBasics->{'url'} = ':TEMPLETON_URL:/templeton/v1/queue/' 
+    . $jobid . '?' . "user.name=:UNAME:" ;
+  return $self->execCurlCmd($testCmdBasics, "", $log);
+}
+###############################################################################
+# Use jobs/:job id API introduced in Hive 0.12 for killing a job
+sub killJob2{
+  my ($self, $testCmd, $jobid, $log) = @_;
+  my $testCmdBasics = $self->copyTestBasicConfig($testCmd);
+  $testCmdBasics->{'method'} = 'DELETE';
+  $testCmdBasics->{'num'} = $testCmdBasics->{'num'} . "_killJob";
+  $testCmdBasics->{'url'} = ':TEMPLETON_URL:/templeton/v1/jobs/' 
     . $jobid . '?' . "user.name=:UNAME:" ;
   return $self->execCurlCmd($testCmdBasics, "", $log);
 }
