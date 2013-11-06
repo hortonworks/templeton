@@ -599,6 +599,11 @@ sub compare
         }
         my $regex_expected_value = $json_matches->{$key};
         print $log "Comparing $key: $json_field_val with regex /$regex_expected_value/\n";
+        
+        #the below code is added due to version change in JSON module
+        if ($key ne "exitcode" && $json_field_val == 1) {
+          $json_field_val = 'true';
+        }
 
         if ($json_field_val !~ /$regex_expected_value/s) {
           print $log "$0::$subName INFO check failed:" 
