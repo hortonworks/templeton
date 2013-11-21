@@ -836,7 +836,7 @@ sub compare
 
           my %r_userargs = %{$res_hash->{'userargs'}};
           foreach my $key( keys %exp_userargs){
-            if ($key eq "enablelog") {
+            if ($key eq "enablelog" || $key eq "define") {
               next;
             }
             if( !defined $r_userargs{$key}){
